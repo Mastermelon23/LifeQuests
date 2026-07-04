@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>LifeQuest RPG: Definitive Edition</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <style>
+        :root {
+            --bg-color: #06090E;
+            --card-bg: #111722;
+            --text-main: #F0F4F8;
+            --text-muted: #486581;
+            --accent-gold: #FFD700;
+            
+            --color-money: #00E676;
+            --color-health: #FF1744;
+            --color-religion: #D500F9;
+            --color-personality: #FF9100;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: calc(20px + env(safe-area-inset-top)) 16px calc(20px + env(safe-area-inset-bottom)) 16px;
+            min-height: 100vh;
+        }
+
+        /* Hero Character Component */
+        .profile-section {
+            background: linear-gradient(145deg, #182232, #111722);
+            border-radius: 24px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border: 1px solid rgba(255, 215, 0, 0.15);
+        }
+
+        .avatar-stage {
+            width: 85px;
+            height: 85px;
+            background: radial-gradient(circle, #1F2B3E 0%, #0A0F16 100%);
+            border-radius: 20px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            border: 2px solid #243B53;
+            cursor: pointer;
+        }
+
+        .avatar-layer {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+        .layer-aura { font-size: 50px; opacity: 0.4; animation: spin 14s linear infinite; }
+        .layer-body { font-size: 36px; z-index: 2; transform: translateY(4px); }
+        .layer-head { font-size: 30px; z-index: 3; transform: translateY(-18px); }
+        .layer-hand { font-size: 24px; z-index: 4; transform: translate(22px, 8px); }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .profile-stats h2 { font-size: 20px; font-weight: 800; color: #FFF; }
+        .profile-stats p { font-size: 13px; color: var(--accent-gold); font-weight: 700; }
+        .archetype-tag { font-size: 11px; background: rgba(255,215,0,0.15); color: var(--accent-gold); padding: 2px 6px; border-radius: 6px; display: inline-block; margin-top: 4px; }
+
+        /* Full Screen Interfaces */
+        #setup-screen, #wardrobe-drawer, #quest-creator {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color);
+            z-index: 999;
+            padding: calc(30px + env(safe-area-inset-top)) 20px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .section-title { font-size: 24px; font-weight: 800; margin-bottom: 6px; text-align: center; }
+        .section-subtitle { font-size: 13px; color: var(--text-muted); text-align: center; margin-bottom: 20px; }
+
+        /* Class Selection System */
+        .archetype-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+        .archetype-card { background: #111722; border: 2px solid transparent; border-radius: 16px; padding: 12px; text-align: center; cursor: pointer; }
+        .archetype-card.selected { border-color: var(--accent-gold); background: #182232; }
+        .arch-icon { font-size: 28px; margin-bottom: 4px; }
+        .arch-title { font-size: 14px; font-weight: 700; }
+        .arch-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+        /* General Setup Inputs */
+        .setup-row { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 12px; border-radius: 12px; margin-bottom: 8px; }
+        .setup-row input, .form-input, .form-select { background: #06090E; border: 1px solid #243B53; color: #fff; padding: 8px; border-radius: 8px; font-weight: bold; }
+        .setup-row input { width: 65px; text-align: center; }
+        .form-input, .form-select { width: 100%; margin-bottom: 16px; font-size: 14px; }
+
+        /* Quest Log Modules */
+        .grid { display: flex; flex-direction: column; gap: 16px; }
+        .pillar-card { background: var(--card-bg); border-radius: 20px; padding: 16px; border-top: 4px solid transparent; }
+        .pillar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .pillar-name { font-size: 18px; font-weight: 700; }
+        .level-badge { font-weight: 800; font-size: 13px; padding: 2px 8px; border-radius: 6px; background: rgba(255,255,255,0.05); }
+
+        .quest-log { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+        .quest-item { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px; font-size: 13px; }
+        .quest-item.completed span { text-decoration: line-through; color: var(--text-muted); }
+        
+        .chk-box { width: 18px; height: 18px; border-radius: 4px; border: 2px solid var(--text-muted); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 11px; font-weight: bold; flex-shrink: 0; }
+        .chk-box.checked { background: var(--accent-gold); border-color: var(--accent-gold); color: #000; }
+
+        .lvl-up-banner { width: 100%; border: none; padding: 10px; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer; text-align: center; margin-top: 12px; letter-spacing: 0.5px; display: none; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; transform: scale(1.01); } 100% { opacity: 0.8; } }
+
+        /* Global Controls */
+        .action-btn-global { background: #F0F4F8; color: #06090E; border: none; padding: 12px; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; text-align: center; width: 100%; margin-top: auto; }
+        .nav-buttons { display: flex; gap: 10px; margin-bottom: 16px; }
+        .nav-btn { flex: 1; background: #111722; color: #fff; border: 1px solid #243B53; padding: 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+
+        /* Wardrobe Structure */
+        .wardrobe-grid { display: flex; flex-direction: column; gap: 12px; }
+        .items-row { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0; }
+        .item-node { width: 55px; height: 55px; background: #06090E; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; border: 2px solid transparent; flex-shrink: 0; position: relative; }
+        .item-node.equipped { border-color: var(--accent-gold); }
+        .item-node.locked { opacity: 0.2; }
+        .lock-lbl { position: absolute; font-size: 8px; bottom: 1px; color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <!-- 1. DETAILED STARTING SELECTION SCREEN -->
+    <div id="setup-screen" style="display: none;">
+        <div class="section-title">Class Selection & Attributes</div>
+        <div class="section-subtitle">Choose your avatar path and initialization stats</div>
+        
+        <div class="archetype-grid">
+            <div class="archetype-card selected" id="arch-engineer" onclick="selectArchetype('Engineer', '🧍', '🥽', '💼')">
+                <div class="arch-icon">🛠️</div>
+                <div class="arch-title">Prototyper</div>
+                <div class="arch-desc">Tech Visor & Asset Briefcase starter setup</div>
+            </div>
+            <div class="archetype-card" id="arch-warrior" onclick="selectArchetype('Paladin', '🧍', '🪖', '🗡️')">
+                <div class="arch-icon">⚔️</div>
+                <div class="arch-title">Paladin</div>
+                <div class="arch-desc">Tactical Helm & Relic Greatsword starter setup</div>
+            </div>
+            <div class="archetype-card" id="arch-scholar" onclick="selectArchetype('Scholar', '🧍', '👑', '📜')">
+                <div class="arch-icon">🔮</div>
+                <div class="arch-title">Scholar</div>
+                <div class="arch-desc">Golden Crown & Ancient Scroll starter setup</div>
+            </div>
+            <div class="archetype-card" id="arch-shadow" onclick="selectArchetype('Rogue', '🥷', '', '')">
+                <div class="arch-icon">👤</div>
+                <div class="arch-title">Shadow Rogue</div>
+                <div class="arch-desc">Mythic Shadow Cloak wrapper starter setup</div>
+            </div>
+        </div>
+
+        <div class="setup-row" style="border-left: 4px solid var(--color-money)"><label>Money Level</label><input type="number" id="start-money" value="1"></div>
+        <div class="setup-row" style="border-left: 4px solid var(--color-health)"><label>Health Level</label><input type="number" id="start-health" value="1"></div>
+        <div class="setup-row" style="border-left: 4px solid var(--color-religion)"><label>Religion Level</label><input type="number" id="start-religion" value="1"></div>
+        <div class="setup-row" style="border-left: 4px solid var(--color-personality)"><label>Personality Level</label><input type="number" id="start-personality" value="1"></div>
+        
+        <button class="action-btn-global" onclick="confirmSetup()">Forge Character Path</button>
+    </div>
+
+    <!-- 2. QUEST CREATOR MODAL -->
+    <div id="quest-creator" style="display: none;">
+        <div class="section-title">Quest Creator Forge</div>
+        <div class="section-subtitle">Inject your custom real-world parameters into the active logs</div>
+        
+        <label style="font-size:12px; color:var(--text-muted); font-weight:700;">PILLAR ALLOCATION</label>
+        <select id="quest-pillar-select" class="form-select">
+            <option value="money">Money</option>
+            <option value="health">Health</option>
+            <option value="religion">Religion</option>
+            <option value="personality">Personality</option>
+        </select>
+
+        <label style="font-size:12px; color:var(--text-muted); font-weight:700;">OBJECTIVE DESCRIPTION</label>
+        <input type="text" id="quest-desc-input" class="form-input" placeholder="e.g., Read 30 pages of technical specs...">
+
+        <button class="action-btn-global" onclick="saveCustomQuest()" style="background:var(--accent-gold);">Forge Quest</button>
+        <button class="action-btn-global" onclick="toggleQuestCreator(false)" style="background:transparent; color:var(--text-muted); margin-top:8px;">Cancel</button>
+    </div>
+
+    <!-- 3. WARDROBE DRAWER -->
+    <div id="wardrobe-drawer" style="display: none;">
+        <div class="section-title">Hero Wardrobe</div>
+        <div class="section-subtitle">Equip items unlocked via your real-life progression tier levels</div>
+        <div class="wardrobe-grid" id="wardrobe-container"></div>
+        <button class="action-btn-global" onclick="closeWardrobe()">Equip & Close</button>
+    </div>
+
+    <!-- MAIN APP DASHBOARD VIEW -->
+    <div class="profile-section">
+        <div class="avatar-stage" onclick="openWardrobe()">
+            <div class="avatar-layer layer-aura" id="view-aura"></div>
+            <div class="avatar-layer layer-body" id="view-body">🧍</div>
+            <div class="avatar-layer layer-head" id="view-head"></div>
+            <div class="avatar-layer layer-hand" id="view-hand"></div>
+        </div>
+        <div class="profile-stats">
+            <h2 id="char-name-display">Hero Character</h2>
+            <div class="archetype-tag" id="char-arch-display">Class</div>
+            <p id="global-level-display" style="margin-top:4px;">TOTAL LVL --</p>
+        </div>
+    </div>
+
+    <div class="nav-buttons">
+        <button class="nav-btn" onclick="toggleQuestCreator(true)">⚔️ Forge Quest</button>
+        <button class="nav-btn" onclick="openWardrobe()">🛡️ Wardrobe</button>
+    </div>
+
+    <div class="grid" id="main-grid"></div>
+
+    <script>
+        const cosmeticRegistry = {
+            head: [{ item: '👑', req: 1 }, { item: '🥽', req: 4 }, { item: '🪖', req: 10 }, { item: '🦬', req: 22 }],
+            body: [{ item: '🧍', req: 1 }, { item: '🥋', req: 5 }, { item: '🛡️', req: 12 }, { item: '🥷', req: 20 }],
+            hand: [{ item: '💼', req: 1 }, { item: '🏋️', req: 4 }, { item: '📜', req: 9 }, { item: '🗡️', req: 16 }],
+            aura: [{ item: '', req: 1 }, { item: '✨', req: 6 }, { item: '🔥', req: 15 }, { item: '🌀', req: 28 }]
+        };
+
+        const starterQuestPools = {
+            money: ["Track every spending variable today.", "Review active monthly subscriptions.", "Allocate target percentage directly to long-term savings."],
+            health: ["Complete high-intensity physical movement blocks.", "Hit zero processed sugar intake loops over 24 hours.", "Hit target hydration values before dusk."],
+            religion: ["Dedicate 15 minutes to targeted scripture review.", "Execute morning reflection layouts smoothly on time.", "Log 3 distinct elements of deep structural daily gratitude."],
+            personality: ["Absorb 20 minutes structural technical literature.", "Practice public speaking voice pacing drills.", "Execute 3D layout optimization or workspace organization."]
+        };
+
+        let engineState = null;
+        let selectedArch = { name: "Prototyper", body: "🧍", head: "🥽", hand: "💼" };
+
+        function init() {
+            const saved = localStorage.getItem('lifequest_v3_state');
+            if (saved) {
+                engineState = JSON.parse(saved);
+                render();
+            } else {
+                document.getElementById('setup-screen').style.display = 'flex';
+            }
+        }
+
+        function selectArchetype(name, body, head, hand) {
+            selectedArch = { name, body, head, hand };
+            document.querySelectorAll('.archetype-card').forEach(c => c.classList.remove('selected'));
+            if(name === 'Engineer') document.getElementById('arch-engineer').classList.add('selected');
+            if(name === 'Paladin') document.getElementById('arch-warrior').classList.add('selected');
+            if(name === 'Scholar') document.getElementById('arch-scholar').classList.add('selected');
+            if(name === 'Rogue') document.getElementById('arch-shadow').classList.add('selected');
+        }
+
+        function confirmSetup() {
+            engineState = {
+                archetype: selectedArch.name,
+                equipped: { head: selectedArch.head, body: selectedArch.body, hand: selectedArch.hand, aura: '' },
+                pillars: {
+                    money: { level: parseInt(document.getElementById('start-money').value) || 1, quests: [] },
+                    health: { level: parseInt(document.getElementById('start-health').value) || 1, quests: [] },
+                    religion: { level: parseInt(document.getElementById('start-religion').value) || 1, quests: [] },
+                    personality: { level: parseInt(document.getElementById('start-personality').value) || 1, quests: [] }
+                }
+            };
+
+            // Populate starting series logs
+            for (let p in engineState.pillars) {
+                engineState.pillars[p].quests = starterQuestPools[p].map(text => ({ text, done: false }));
+            }
+
+            save();
+            document.getElementById('setup-screen').style.display = 'none';
+            render();
+        }
+
+        function save() { localStorage.setItem('lifequest_v3_state', JSON.stringify(engineState)); }
+
+        function toggleQuestCreator(show) {
+            document.getElementById('quest-creator').style.display = show ? 'flex' : 'none';
+        }
+
+        function saveCustomQuest() {
+            const pillar = document.getElementById('quest-pillar-select').value;
+            const text = document.getElementById('quest-desc-input').value.trim();
+            
+            if (text === "") return alert("Please enter a valid quest line objective.");
+            
+            engineState.pillars[pillar].quests.push({ text: text, done: false });
+            save();
+            toggleQuestCreator(false);
+            document.getElementById('quest-desc-input').value = "";
+            render();
+        }
+
+        function toggleQuestCheck(pillar, index) {
+            let pData = engineState.pillars[pillar];
+            pData.quests[index].done = !pData.quests[index].done;
+            save();
+            render();
+        }
+
+        function triggerLevelUp(pillar) {
+            let pData = engineState.pillars[pillar];
+            
+            // Security verification checkpoint
+            if (!pData.quests.every(q => q.done)) return;
+
+            pData.level += 1;
+            
+            // Re-populate log automatically with fresh randomized challenge configurations
+            pData.quests = starterQuestPools[pillar].map(text => ({ text, done: false }));
+            
+            alert(`⚔️ LEVEL UP! Your ${pillar.toUpperCase()} variable ascended to Level ${pData.level}!`);
+            save();
+            render();
+        }
+
+        function render() {
+            let sumLevels = 0;
+            for(let key in engineState.pillars) sumLevels += engineState.pillars[key].level;
+
+            document.getElementById('char-arch-display').innerText = engineState.archetype;
+            document.getElementById('global-level-display').innerText = `TOTAL LEVEL: ${sumLevels}`;
+            
+            // Build visual character layer values
+            document.getElementById('view-head').innerText = engineState.equipped.head || '';
+            document.getElementById('view-body').innerText = engineState.equipped.body || '🧍';
+            document.getElementById('view-hand').innerText = engineState.equipped.hand || '';
+            document.getElementById('view-aura').innerText = engineState.equipped.aura || '';
+
+            const grid = document.getElementById('main-grid');
+            grid.innerHTML = '';
+
+            const structure = [
+                { id: 'money', label: 'Money', color: 'var(--color-money)' },
+                { id: 'health', label: 'Health', color: 'var(--color-health)' },
+                { id: 'religion', label: 'Religion', color: 'var(--color-religion)' },
+                { id: 'personality', label: 'Personality', color: 'var(--color-personality)' }
+            ];
+
+            structure.forEach(cfg => {
+                const pData = engineState.pillars[cfg.id];
+                const allDone = pData.quests.length > 0 && pData.quests.every(q => q.done);
+
+                let questLogHTML = '';
+                pData.quests.forEach((q, idx) => {
+                    questLogHTML += `
+                        <div class="quest-item ${q.done ? 'completed' : ''}">
+                            <div class="chk-box ${q.done ? 'checked' : ''}" onclick="toggleQuestCheck('${cfg.id}', ${idx})">
+                                ${q.done ? '✓' : ''}
+                            </div>
+                            <span>${q.text}</span>
+                        </div>
+                    `;
+                });
+
+                if(pData.quests.length === 0) {
+                    questLogHTML = `<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Quest log empty. Forge new missions above!</div>`;
+                }
+
+                grid.insertAdjacentHTML('beforeend', `
+                    <div class="pillar-card" style="border-top-color: ${cfg.color}">
+                        <div class="pillar-header">
+                            <span class="pillar-name">${cfg.label}</span>
+                            <span class="level-badge" style="color: ${cfg.color}">LVL ${pData.level}</span>
+                        </div>
+                        <div class="quest-log">${questLogHTML}</div>
+                        <button class="lvl-up-banner" id="btn-lvl-${cfg.id}" 
+                                style="display: ${allDone ? 'block' : 'none'}; background: ${cfg.color}; color: #000;" 
+                                onclick="triggerLevelUp('${cfg.id}')">
+                            Ascend to Level ${pData.level + 1} ⚡
+                        </button>
+                    </div>
+                `);
+            });
+        }
+
+        /* Wardrobe Interfacing Elements */
+        function openWardrobe() {
+            const container = document.getElementById('wardrobe-container');
+            container.innerHTML = '';
+            
+            let sumLevels = 0;
+            for(let key in engineState.pillars) sumLevels += engineState.pillars[key].level;
+
+            for (let slot in cosmeticRegistry) {
+                let row = `<div class="wardrobe-cat"><h3>${slot}</h3><div class="items-row">`;
+                cosmeticRegistry[slot].forEach(node => {
+                    const locked = sumLevels < node.req;
+                    const active = engineState.equipped[slot] === node.item;
+                    row += `
+                        <div class="item-node ${locked ? 'locked' : ''} ${active ? 'equipped' : ''}"
+                             onclick="${locked ? '' : `equip('${slot}','${node.item}')`}">
+                            ${node.item === '' ? '🚫' : node.item}
+                            ${locked ? `<div class="lock-lbl">L${node.req}</div>` : ''}
+                        </div>
+                    `;
+                });
+                row += `</div></div>`;
+                container.insertAdjacentHTML('beforeend', row);
+            }
+            document.getElementById('wardrobe-drawer').style.display = 'flex';
+        }
+
+        function equip(slot, item) {
+            engineState.equipped[slot] = item;
+            save();
+            openWardrobe();
+        }
+
+        function closeWardrobe() {
+            document.getElementById('wardrobe-drawer').style.display = 'none';
+            render();
+        }
+
+        init();
+    </script>
+</body>
+</html>
