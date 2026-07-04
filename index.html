@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>LifeQuest: Single Player RPG</title>
+    <title>LifeQuest: High-Detail RPG</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -47,21 +47,45 @@
 
         .screen-title { font-size: 22px; font-weight: 800; margin-bottom: 16px; text-align: center; }
 
+        /* --- THE ADVANCED HIGH-DETAIL VECTOR AVATAR SYSTEM --- */
         .hero-banner {
             background: linear-gradient(135deg, #1C263B 0%, #161F30 100%); 
             border: 2px solid var(--panel-border);
             border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 16px; margin-bottom: 16px;
         }
-        .avatar-canvas {
-            width: 80px; height: 80px; background: #070A10; border-radius: 50%;
-            position: relative; overflow: hidden; border: 2px solid var(--panel-border); flex-shrink: 0;
+        .avatar-viewport {
+            width: 90px; height: 90px; background: radial-gradient(circle, #202D44 0%, #090D14 100%);
+            border-radius: 24px; position: relative; overflow: hidden; border: 2px solid #384F73; flex-shrink: 0;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.6), 0 4px 10px rgba(0,0,0,0.3);
         }
+        .v-canvas { position: absolute; width: 100%; height: 100%; top: 0; left: 0; }
         .v-layer { position: absolute; left: 50%; transform: translateX(-50%); }
-        .v-skin { width: 36px; height: 36px; border-radius: 50%; top: 20px; }
-        .v-hair { width: 40px; border-radius: 20px 20px 0 0; top: 16px; display: none; }
-        .v-beard { width: 28px; border-radius: 0 0 14px 14px; top: 40px; display: none; }
-        .v-cloth { width: 50px; height: 34px; border-radius: 12px 12px 0 0; top: 52px; }
+        
+        /* Neck Foundation */
+        .v-neck { width: 16px; height: 20px; background: #FFDBAC; top: 48px; border-radius: 0 0 4px 4px; filter: brightness(0.9); z-index: 2; }
+        
+        /* Face Base with Subtle Shadowing */
+        .v-face { width: 42px; height: 46px; background: #FFDBAC; border-radius: 20px 20px 24px 24px; top: 14px; z-index: 3; box-shadow: inset 0 -3px 4px rgba(0,0,0,0.1); }
+        
+        /* Detailed Vector Facial Expressions */
+        .v-eyes { width: 26px; height: 6px; top: 32px; z-index: 6; display: flex; justify-content: space-between; }
+        .v-eye { width: 6px; height: 6px; background: #222; border-radius: 50%; position: relative; }
+        .v-eye::after { content: ''; position: absolute; width: 2px; height: 2px; background: #fff; border-radius: 50%; top: 1px; left: 1px; }
+        .v-brows { width: 30px; height: 4px; top: 26px; z-index: 6; display: flex; justify-content: space-between; }
+        .v-brow { width: 8px; height: 2px; background: #1A1A1A; border-radius: 2px; }
+        
+        /* Premium Layered Hair Aesthetics */
+        .v-hair-back { width: 48px; height: 35px; background: #1A1A1A; border-radius: 16px 16px 8px 8px; top: 12px; z-index: 1; }
+        .v-hair-front { width: 44px; height: 18px; background: #1A1A1A; border-radius: 12px 12px 4px 4px; top: 12px; z-index: 7; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        
+        /* Layered Beard Integration */
+        .v-beard-jaw { width: 44px; height: 24px; background: transparent; border-radius: 0 0 24px 24px; top: 36px; z-index: 4; }
+        
+        /* Detailed Layered Clothing Structure */
+        .v-apparel-chest { width: 64px; height: 38px; background: #2A3B50; border-radius: 16px 16px 0 0; top: 58px; z-index: 5; overflow: hidden; }
+        .v-apparel-collar { width: 20px; height: 14px; background: rgba(0,0,0,0.2); position: absolute; top: 0; left: 50%; transform: translateX(-50%); border-radius: 0 0 10px 10px; }
 
+        /* UI Framework Settings */
         .hero-meta { flex-grow: 1; }
         .hero-meta h2 { font-size: 18px; font-weight: 800; }
         .hero-meta .overall-lvl-txt { font-size: 14px; color: var(--accent-gold); font-weight: 700; margin-top: 2px; display: flex; justify-content: space-between; }
@@ -95,7 +119,6 @@
 </head>
 <body>
 
-    <!-- ONLY DISPLAYED ON ABSOLUTE FIRST LAUNCH -->
     <div id="setup-screen" style="display: none;">
         <div class="screen-title">Create Profile</div>
         <label style="font-size:11px; font-weight:bold; color:var(--accent-blue); display:block; margin-bottom:6px;">ENTER MONIKER</label>
@@ -126,13 +149,26 @@
         <button class="btn" onclick="toggleQuestCreator(false)" style="background:transparent; color:var(--text-dark); margin-top:6px;">Abort</button>
     </div>
 
-    <!-- MAIN DASHBOARD CONTENT -->
+    <!-- MAIN INTERFACE HEADER PANEL -->
     <div class="hero-banner">
-        <div class="avatar-canvas" onclick="openCustomizer()">
-            <div class="v-layer v-skin" id="render-skin"></div>
-            <div class="v-layer v-hair" id="render-hair"></div>
-            <div class="v-layer v-beard" id="render-beard"></div>
-            <div class="v-layer v-cloth" id="render-cloth"></div>
+        <div class="avatar-viewport" onclick="openCustomizer()">
+            <div class="v-canvas">
+                <div class="v-layer v-hair-back" id="render-hair-back"></div>
+                <div class="v-layer v-neck" id="render-neck"></div>
+                <div class="v-layer v-face" id="render-skin">
+                    <div class="v-layer v-brows" id="render-brows">
+                        <div class="v-brow"></div><div class="v-brow"></div>
+                    </div>
+                    <div class="v-layer v-eyes">
+                        <div class="v-eye"></div><div class="v-eye"></div>
+                    </div>
+                </div>
+                <div class="v-layer v-beard-jaw" id="render-beard"></div>
+                <div class="v-layer v-hair-front" id="render-hair-front"></div>
+                <div class="v-layer v-apparel-chest" id="render-cloth">
+                    <div class="v-apparel-collar"></div>
+                </div>
+            </div>
         </div>
         <div class="hero-meta">
             <h2 id="v-name">PLAYER</h2>
@@ -155,10 +191,30 @@
 
     <script>
         const assetOptions = {
-            skin: [{ label: 'Fair Light', val: '#FFDBAC' }, { label: 'Medium Tan', val: '#E0AC69' }, { label: 'Deep Rich', val: '#8D5524' }, { label: 'Vibrant Aqua', val: '#00E5FF' }],
-            hair: [{ label: 'None', val: 'transparent', h: '0px', r: '0' }, { label: 'Cropped Black', val: '#1A1A1A', h: '16px', r: '20px 20px 0 0' }, { label: 'Chestnut Waves', val: '#6A4016', h: '22px', r: '16px 16px 8px 8px' }, { label: 'Neon Buzz', val: '#39FF14', h: '12px', r: '10px 10px 0 0' }],
-            facialHair: [{ label: 'Clean Shaven', val: 'transparent', h: '0px' }, { label: 'Grizzly Shadow', val: '#2B1A0A', h: '14px' }, { label: 'Heavy Stubble', val: '#1A1A1A', h: '10px' }],
-            clothing: [{ label: 'Minimalist Slate', val: '#2A3B50' }, { label: 'Training Crimson', val: '#FF1744' }, { label: 'Gilded Royal', val: '#FFD700' }, { label: 'Stealth Void', val: '#111622' }]
+            skin: [
+                { label: 'Fair Light', val: '#FFDBAC', neck: '#E5C49A' },
+                { label: 'Medium Tan', val: '#E0AC69', neck: '#C6985C' },
+                { label: 'Deep Rich', val: '#8D5524', neck: '#75461E' },
+                { label: 'Vibrant Aqua', val: '#00E5FF', neck: '#00C8DB' }
+            ],
+            hair: [
+                { label: 'Bald / None', val: 'transparent', brow: '#1A1A1A' },
+                { label: 'Midnight Black', val: '#1A1A1A', brow: '#000000' },
+                { label: 'Espresso Brown', val: '#4A2E1B', brow: '#2D1C10' },
+                { label: 'Gilded Blonde', val: '#E6B800', brow: '#A38200' },
+                { label: 'Neon Cyber', val: '#FF007F', brow: '#B30059' }
+            ],
+            facialHair: [
+                { label: 'Clean Shaven', val: 'transparent' },
+                { label: 'Full Boxed Beard', val: 'rgba(0,0,0,0.25)' },
+                { label: 'Heavy Shadow stubble', val: 'rgba(0,0,0,0.12)' }
+            ],
+            clothing: [
+                { label: 'Tactical Slate', val: '#2A3B50' },
+                { label: 'Gladiator Crimson', val: '#FF1744' },
+                { label: 'Paladin Amethyst', val: '#6200EA' },
+                { label: 'Void Stealth', val: '#111622' }
+            ]
         };
 
         const starterPresets = {
@@ -171,7 +227,7 @@
         let activeData = null;
 
         function initSingleSave() {
-            const cache = localStorage.getItem('lq_single_save_profile');
+            const cache = localStorage.getItem('lq_hi_def_profile');
             if(cache) {
                 activeData = JSON.parse(cache);
                 renderEngine();
@@ -188,7 +244,7 @@
                 name: txt,
                 overallLevel: 1,
                 overallXp: 0,
-                style: { skin: '#FFDBAC', hair: 'transparent', hairH: '0px', hairR: '0', beard: 'transparent', beardH: '0px', cloth: '#2A3B50' },
+                style: { skin: '#FFDBAC', neck: '#E5C49A', hair: '#1A1A1A', brow: '#000000', beard: 'transparent', cloth: '#2A3B50' },
                 pillars: {
                     money: { level: 1, xp: 0, quests: JSON.parse(JSON.stringify(starterPresets.money)) },
                     health: { level: 1, xp: 0, quests: JSON.parse(JSON.stringify(starterPresets.health)) },
@@ -201,7 +257,7 @@
             renderEngine();
         }
 
-        function save() { localStorage.setItem('lq_single_save_profile', JSON.stringify(activeData)); }
+        function save() { localStorage.setItem('lq_hi_def_profile', JSON.stringify(activeData)); }
         function toggleQuestCreator(show) { document.getElementById('quest-creator').style.display = show ? 'flex' : 'none'; }
 
         function addCustomQuest() {
@@ -269,15 +325,29 @@
             document.getElementById('v-overall-xp-txt').innerText = `${activeData.overallXp}/${currentGlobalMax} XP`;
             document.getElementById('overall-xp-fill').style.width = `${globalPct}%`;
 
+            // Canvas Core Vector Coloring Engine
             document.getElementById('render-skin').style.backgroundColor = activeData.style.skin;
-            const hairNode = document.getElementById('render-hair');
-            if(activeData.style.hair === 'transparent') { hairNode.style.display = 'none'; } 
-            else { hairNode.style.display = 'block'; hairNode.style.backgroundColor = activeData.style.hair; hairNode.style.height = activeData.style.hairH; hairNode.style.borderRadius = activeData.style.hairR; }
+            document.getElementById('render-neck').style.backgroundColor = activeData.style.neck;
+            document.getElementById('render-cloth').style.backgroundColor = activeData.style.cloth;
+            
+            // Eyebrow configuration tracking
+            document.querySelectorAll('.v-brow').forEach(b => b.style.backgroundColor = activeData.style.brow);
+
+            const hBack = document.getElementById('render-hair-back');
+            const hFront = document.getElementById('render-hair-front');
+            if(activeData.style.hair === 'transparent') {
+                hBack.style.display = 'none'; hFront.style.display = 'none';
+            } else {
+                hBack.style.display = 'block'; hFront.style.display = 'block';
+                hBack.style.backgroundColor = activeData.style.hair;
+                hFront.style.backgroundColor = activeData.style.hair;
+            }
 
             const beardNode = document.getElementById('render-beard');
-            if(activeData.style.beard === 'transparent') { beardNode.style.display = 'none'; }
-            else { beardNode.style.display = 'block'; beardNode.style.backgroundColor = activeData.style.beard; beardNode.style.height = activeData.style.beardH; }
-            document.getElementById('render-cloth').style.backgroundColor = activeData.style.cloth;
+            beardNode.style.backgroundColor = activeData.style.beard;
+            if(activeData.style.beard !== 'transparent' && activeData.style.hair !== 'transparent') {
+                beardNode.style.filter = `hue-rotate(0deg)`; // Optional shading variations
+            }
 
             const grid = document.getElementById('main-quest-grid');
             grid.innerHTML = '';
@@ -331,29 +401,31 @@
 
         function openCustomizer() {
             const target = document.getElementById('customizer-container'); target.innerHTML = '';
+            
             let skinHTML = `<div class="config-block"><label>Skin Pigmentation</label><div class="scroller-row">`;
-            assetOptions.skin.forEach(opt => { skinHTML += `<div class="swatch-box ${activeData.style.skin === opt.val ? 'selected' : ''}" onclick="applyStyle('skin','${opt.val}')">${opt.label}</div>`; });
+            assetOptions.skin.forEach(opt => { skinHTML += `<div class="swatch-box ${activeData.style.skin === opt.val ? 'selected' : ''}" onclick="applyStyle('skin','${opt.val}','${opt.neck}')">${opt.label}</div>`; });
             target.insertAdjacentHTML('beforeend', skinHTML + `</div></div>`);
 
-            let hairHTML = `<div class="config-block"><label>Hair Architecture</label><div class="scroller-row">`;
-            assetOptions.hair.forEach(opt => { hairHTML += `<div class="swatch-box ${activeData.style.hair === opt.val ? 'selected' : ''}" onclick="applyStyle('hair','${opt.val}','${opt.h}','${opt.r}')">${opt.label}</div>`; });
+            let hairHTML = `<div class="config-block"><label>Premium Hairstyles</label><div class="scroller-row">`;
+            assetOptions.hair.forEach(opt => { hairHTML += `<div class="swatch-box ${activeData.style.hair === opt.val ? 'selected' : ''}" onclick="applyStyle('hair','${opt.val}','${opt.brow}')">${opt.label}</div>`; });
             target.insertAdjacentHTML('beforeend', hairHTML + `</div></div>`);
 
-            let beardHTML = `<div class="config-block"><label>Facial Beard Shadow</label><div class="scroller-row">`;
-            assetOptions.facialHair.forEach(opt => { beardHTML += `<div class="swatch-box ${activeData.style.beard === opt.val ? 'selected' : ''}" onclick="applyStyle('beard','${opt.val}','${opt.h}')">${opt.label}</div>`; });
+            let beardHTML = `<div class="config-block"><label>Facial Beard Configurations</label><div class="scroller-row">`;
+            assetOptions.facialHair.forEach(opt => { beardHTML += `<div class="swatch-box ${activeData.style.beard === opt.val ? 'selected' : ''}" onclick="applyStyle('beard','${opt.val}')">${opt.label}</div>`; });
             target.insertAdjacentHTML('beforeend', beardHTML + `</div></div>`);
 
-            let clothHTML = `<div class="config-block"><label>Wardrobe Uniform Apparel</label><div class="scroller-row">`;
+            let clothHTML = `<div class="config-block"><label>Apparel Armor Tiers</label><div class="scroller-row">`;
             assetOptions.clothing.forEach(opt => { clothHTML += `<div class="swatch-box ${activeData.style.cloth === opt.val ? 'selected' : ''}" onclick="applyStyle('cloth','${opt.val}')">${opt.label}</div>`; });
             target.insertAdjacentHTML('beforeend', clothHTML + `</div></div>`);
+            
             document.getElementById('customizer-drawer').style.display = 'flex';
         }
 
-        function applyStyle(type, val, extra1, extra2) {
-            if(type === 'skin') activeData.style.skin = val;
+        function applyStyle(type, val, extra) {
+            if(type === 'skin') { activeData.style.skin = val; activeData.style.neck = extra; }
             if(type === 'cloth') activeData.style.cloth = val;
-            if(type === 'hair') { activeData.style.hair = val; activeData.style.hairH = extra1; activeData.style.hairR = extra2; }
-            if(type === 'beard') { activeData.style.beard = val; activeData.style.beardH = extra1; }
+            if(type === 'hair') { activeData.style.hair = val; activeData.style.brow = extra; }
+            if(type === 'beard') { activeData.style.beard = val; }
             save(); openCustomizer();
         }
         function closeCustomizer() { document.getElementById('customizer-drawer').style.display = 'none'; renderEngine(); }
