@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>LifeQuest: Minimalist RPG</title>
+    <title>LifeQuest: Single Player RPG</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -39,20 +39,6 @@
             min-height: 100vh;
         }
 
-        /* Save Menu Custom Window */
-        #save-screen {
-            position: fixed; top:0; left:0; width:100%; height:100%;
-            background: var(--bg-dark); z-index: 1000;
-            padding: 40px 20px; display: flex; flex-direction: column; justify-content: center; gap: 16px;
-        }
-        .save-slot {
-            background: var(--panel-bg); border: 2px solid var(--panel-border);
-            padding: 16px; border-radius: 12px; cursor: pointer;
-        }
-        .save-slot h3 { color: var(--accent-blue); margin-bottom: 4px; font-size: 16px; }
-        .save-slot p { font-size: 13px; color: var(--text-dark); }
-
-        /* Setup Overlays */
         #setup-screen, #customizer-drawer, #quest-creator {
             position: fixed; top:0; left:0; width:100%; height:100%;
             background: var(--bg-dark); z-index: 999; padding: calc(20px + env(safe-area-inset-top)) 16px;
@@ -61,9 +47,9 @@
 
         .screen-title { font-size: 22px; font-weight: 800; margin-bottom: 16px; text-align: center; }
 
-        /* The Vector Character System Canvas */
         .hero-banner {
-            background: var(--panel-bg); border: 2px solid var(--panel-border);
+            background: linear-gradient(135deg, #1C263B 0%, #161F30 100%); 
+            border: 2px solid var(--panel-border);
             border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 16px; margin-bottom: 16px;
         }
         .avatar-canvas {
@@ -71,83 +57,76 @@
             position: relative; overflow: hidden; border: 2px solid var(--panel-border); flex-shrink: 0;
         }
         .v-layer { position: absolute; left: 50%; transform: translateX(-50%); }
-        
-        /* CSS Shape Body Assets */
-        .v-skin { width: 36px; height: 36px; background: #FFDBAC; border-radius: 50%; top: 20px; }
-        .v-hair { width: 40px; height: 18px; border-radius: 20px 20px 0 0; top: 16px; background: #000; display: none; }
-        .v-beard { width: 28px; height: 16px; border-radius: 0 0 14px 14px; top: 40px; background: #000; display: none; }
-        .v-cloth { width: 50px; height: 34px; border-radius: 12px 12px 0 0; top: 52px; background: #334E68; }
+        .v-skin { width: 36px; height: 36px; border-radius: 50%; top: 20px; }
+        .v-hair { width: 40px; border-radius: 20px 20px 0 0; top: 16px; display: none; }
+        .v-beard { width: 28px; border-radius: 0 0 14px 14px; top: 40px; display: none; }
+        .v-cloth { width: 50px; height: 34px; border-radius: 12px 12px 0 0; top: 52px; }
 
+        .hero-meta { flex-grow: 1; }
         .hero-meta h2 { font-size: 18px; font-weight: 800; }
-        .hero-meta p { font-size: 13px; color: var(--accent-gold); font-weight: 600; margin-top: 2px; }
+        .hero-meta .overall-lvl-txt { font-size: 14px; color: var(--accent-gold); font-weight: 700; margin-top: 2px; display: flex; justify-content: space-between; }
 
-        /* Settings Option selectors */
         .config-block { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; margin-bottom: 12px; }
         .config-block label { font-size: 11px; font-weight: bold; color: var(--accent-blue); text-transform: uppercase; display: block; margin-bottom: 8px; }
         .scroller-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
-        .swatch-box { padding: 6px 12px; background: #0A0E17; border: 2px solid var(--panel-border); border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; flex-shrink: 0; text-align: center; }
+        .swatch-box { padding: 6px 12px; background: #0A0E17; border: 2px solid var(--panel-border); border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; flex-shrink: 0; }
         .swatch-box.selected { border-color: var(--accent-gold); background: #1F2D44; }
 
-        /* Quest Card Mechanics Layout */
         .grid { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; }
         .pillar-card { background: var(--panel-bg); border-radius: 16px; padding: 16px; border-left: 5px solid transparent; }
-        .pillar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .pillar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
         .pillar-title { font-size: 16px; font-weight: 700; }
         .lvl-tag { font-size: 12px; font-weight: bold; padding: 2px 6px; background: rgba(255,255,255,0.05); border-radius: 4px; }
         
+        .xp-bar-container { width: 100%; height: 6px; background: #070A10; border-radius: 3px; overflow: hidden; margin-bottom: 12px; }
+        .xp-bar-fill { height: 100%; width: 0%; transition: width 0.3s ease; }
+
         .quest-line { display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px; margin-bottom: 6px; font-size: 13px; }
         .quest-line.done span { text-decoration: line-through; color: var(--text-dark); }
         .left-side { display: flex; align-items: center; gap: 10px; }
         .chk-node { width: 18px; height: 18px; border: 2px solid var(--text-dark); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; cursor: pointer; }
         .chk-node.checked { background: var(--accent-gold); border-color: var(--accent-gold); color: #000; }
-        .del-btn { background: transparent; border: none; color: #FF3366; font-size: 14px; font-weight: bold; padding: 0 4px; cursor: pointer; }
+        .xp-badge { font-size: 10px; background: rgba(255,215,0,0.15); color: var(--accent-gold); padding: 1px 4px; border-radius: 4px; font-weight: bold; margin-left: 6px; }
+        .del-btn { background: transparent; border: none; color: #FF3366; font-size: 14px; font-weight: bold; cursor: pointer; }
 
-        /* Interface Buttons */
         .btn { background: #F0F4F8; color: #0A0E17; border: none; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: bold; text-transform: uppercase; cursor: pointer; text-align: center; }
-        .btn-sm { width: 100%; padding: 8px; font-size: 12px; margin-top: 8px; }
         .input-field { width: 100%; background: #0A0E17; border: 2px solid var(--panel-border); color: #fff; padding: 10px; border-radius: 8px; font-size: 14px; margin-bottom: 12px; }
     </style>
 </head>
 <body>
 
-    <!-- 1. MANAGEMENT FILES GRID MENU -->
-    <div id="save-screen">
-        <h2 style="text-align:center; color:var(--accent-blue); font-size:20px; letter-spacing: -0.5px;">SELECT PROFILE FILE</h2>
-        <div class="save-slot" onclick="loadSlot(1)" id="slot-card-1"><h3>PROFILE SLOT 1</h3><p id="slot-desc-1">Uninitialized Log</p></div>
-        <div class="save-slot" onclick="loadSlot(2)" id="slot-card-2"><h3>PROFILE SLOT 2</h3><p id="slot-desc-2">Uninitialized Log</p></div>
-        <div class="save-slot" onclick="loadSlot(3)" id="slot-card-3"><h3>PROFILE SLOT 3</h3><p id="slot-desc-3">Uninitialized Log</p></div>
-    </div>
-
-    <!-- 2. QUICK USER Moniker INITIALIZER -->
+    <!-- ONLY DISPLAYED ON ABSOLUTE FIRST LAUNCH -->
     <div id="setup-screen" style="display: none;">
         <div class="screen-title">Create Profile</div>
-        <label style="font-size:11px; font-weight:bold; color:var(--accent-blue); display:block; margin-bottom:6px;">ENTER MONIKER / NAME</label>
+        <label style="font-size:11px; font-weight:bold; color:var(--accent-blue); display:block; margin-bottom:6px;">ENTER MONIKER</label>
         <input type="text" id="setup-name" class="input-field" placeholder="Your name...">
         <button class="btn" onclick="submitSetup()" style="background:var(--accent-gold); margin-top:auto;">Generate Profile</button>
     </div>
 
-    <!-- 3. REAL-TIME STYLE WORKSHOP -->
     <div id="customizer-drawer" style="display: none;">
         <div class="screen-title">Character Customization Workshop</div>
         <div id="customizer-container" style="flex:1; overflow-y:auto;"></div>
         <button class="btn" onclick="closeCustomizer()" style="margin-top:12px;">Lock Configuration</button>
     </div>
 
-    <!-- 4. QUEST CONFIGURATION INJECTOR -->
     <div id="quest-creator" style="display: none;">
         <div class="screen-title">Forge Custom Quest Line</div>
-        <select id="q-pillar" class="input-field" style="margin-top:12px;">
+        <select id="q-pillar" class="input-field">
             <option value="money">Money Allocation</option>
             <option value="health">Physical Health</option>
             <option value="religion">Spiritual / Religion</option>
             <option value="personality">Personality / Growth</option>
         </select>
         <input type="text" id="q-text" class="input-field" placeholder="Define objective text metrics...">
+        
+        <label style="font-size:11px; font-weight:bold; color:var(--accent-blue); display:block; margin-bottom:6px;">QUEST XP REWARD VALUE</label>
+        <input type="number" id="q-xp" class="input-field" value="25" min="5" max="500">
+        
         <button class="btn" onclick="addCustomQuest()" style="background:var(--accent-blue);">Inject Quest Item</button>
         <button class="btn" onclick="toggleQuestCreator(false)" style="background:transparent; color:var(--text-dark); margin-top:6px;">Abort</button>
     </div>
 
-    <!-- MAIN INTERFACE DESIGNS -->
+    <!-- MAIN DASHBOARD CONTENT -->
     <div class="hero-banner">
         <div class="avatar-canvas" onclick="openCustomizer()">
             <div class="v-layer v-skin" id="render-skin"></div>
@@ -157,74 +136,44 @@
         </div>
         <div class="hero-meta">
             <h2 id="v-name">PLAYER</h2>
-            <p id="v-total-level">TOTAL LVL: --</p>
+            <div class="overall-lvl-txt">
+                <span id="v-overall-level">OVERALL LVL: 1</span>
+                <span id="v-overall-xp-txt" style="font-size:11px; color:var(--text-dark);">0/100 XP</span>
+            </div>
+            <div class="xp-bar-container" style="margin-bottom:0; margin-top:4px; height:8px; background:#070A10;">
+                <div class="xp-bar-fill" id="overall-xp-fill" style="background:var(--accent-gold);"></div>
+            </div>
         </div>
     </div>
 
-    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:8px;">
-        <button class="btn" style="font-size:11px; padding:10px 4px;" onclick="toggleQuestCreator(true)">⚔️ Add Quest</button>
-        <button class="btn" style="font-size:11px; padding:10px 4px;" onclick="openCustomizer()">🛡️ Style Hero</button>
-        <button class="btn" style="font-size:11px; padding:10px 4px; background:#FF1744; color:#fff;" onclick="exitToMenu()">💾 Quit</button>
+    <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px;">
+        <button class="btn" style="font-size:11px;" onclick="toggleQuestCreator(true)">⚔️ Add Quest</button>
+        <button class="btn" style="font-size:11px;" onclick="openCustomizer()">🛡️ Style Hero</button>
     </div>
 
     <div class="grid" id="main-quest-grid"></div>
 
     <script>
         const assetOptions = {
-            skin: [
-                { label: 'Fair Light', val: '#FFDBAC' },
-                { label: 'Medium Tan', val: '#E0AC69' },
-                { label: 'Deep Rich', val: '#8D5524' },
-                { label: 'Vibrant Aqua', val: '#00E5FF' }
-            ],
-            hair: [
-                { label: 'None', val: 'transparent', h: '0px', r: '0' },
-                { label: 'Cropped Black', val: '#1A1A1A', h: '16px', r: '20px 20px 0 0' },
-                { label: 'Chestnut Waves', val: '#6A4016', h: '22px', r: '16px 16px 8px 8px' },
-                { label: 'Neon Buzz', val: '#39FF14', h: '12px', r: '10px 10px 0 0' }
-            ],
-            facialHair: [
-                { label: 'Clean Shaven', val: 'transparent', h: '0px' },
-                { label: 'Grizzly Shadow', val: '#2B1A0A', h: '14px' },
-                { label: 'Heavy Stubble', val: '#1A1A1A', h: '10px' }
-            ],
-            clothing: [
-                { label: 'Minimalist Slate', val: '#2A3B50' },
-                { label: 'Training Crimson', val: '#FF1744' },
-                { label: 'Gilded Royal', val: '#FFD700' },
-                { label: 'Stealth Void', val: '#111622' }
-            ]
+            skin: [{ label: 'Fair Light', val: '#FFDBAC' }, { label: 'Medium Tan', val: '#E0AC69' }, { label: 'Deep Rich', val: '#8D5524' }, { label: 'Vibrant Aqua', val: '#00E5FF' }],
+            hair: [{ label: 'None', val: 'transparent', h: '0px', r: '0' }, { label: 'Cropped Black', val: '#1A1A1A', h: '16px', r: '20px 20px 0 0' }, { label: 'Chestnut Waves', val: '#6A4016', h: '22px', r: '16px 16px 8px 8px' }, { label: 'Neon Buzz', val: '#39FF14', h: '12px', r: '10px 10px 0 0' }],
+            facialHair: [{ label: 'Clean Shaven', val: 'transparent', h: '0px' }, { label: 'Grizzly Shadow', val: '#2B1A0A', h: '14px' }, { label: 'Heavy Stubble', val: '#1A1A1A', h: '10px' }],
+            clothing: [{ label: 'Minimalist Slate', val: '#2A3B50' }, { label: 'Training Crimson', val: '#FF1744' }, { label: 'Gilded Royal', val: '#FFD700' }, { label: 'Stealth Void', val: '#111622' }]
         };
 
         const starterPresets = {
-            money: [{ text: "Log raw data metrics inside budget charts.", done: false }],
-            health: [{ text: "Complete targeted daily movement routine.", done: false }],
-            religion: [{ text: "Allocate focused time block to scripture study.", done: false }],
-            personality: [{ text: "Read 20 minutes technical documentation.", done: false }]
+            money: [{ text: "Log raw data metrics inside budget charts.", xp: 50, done: false }, { text: "Audit passive overhead costs.", xp: 50, done: false }],
+            health: [{ text: "Complete targeted daily movement routine.", xp: 50, done: false }, { text: "Eliminate processed items.", xp: 50, done: false }],
+            religion: [{ text: "Allocate focused time block to scripture study.", xp: 50, done: false }, { text: "Confirm morning gratitude checkmarks.", xp: 50, done: false }],
+            personality: [{ text: "Read 20 minutes technical documentation.", xp: 50, done: false }, { text: "Practice clear voice pacing drills.", xp: 50, done: false }]
         };
 
-        let currentActiveSlot = null;
         let activeData = null;
 
-        function refreshSlots() {
-            for(let i=1; i<=3; i++) {
-                const cache = localStorage.getItem(`lq_v4_slot_${i}`);
-                if(cache) {
-                    const parsed = JSON.parse(cache);
-                    let total = parsed.pillars.money.level + parsed.pillars.health.level + parsed.pillars.religion.level + parsed.pillars.personality.level;
-                    document.getElementById(`slot-desc-${i}`).innerText = `${parsed.name} - Combined Level ${total}`;
-                } else {
-                    document.getElementById(`slot-desc-${i}`).innerText = "Uninitialized Log Profile";
-                }
-            }
-        }
-
-        function loadSlot(id) {
-            currentActiveSlot = id;
-            const cache = localStorage.getItem(`lq_v4_slot_${id}`);
+        function initSingleSave() {
+            const cache = localStorage.getItem('lq_single_save_profile');
             if(cache) {
                 activeData = JSON.parse(cache);
-                document.getElementById('save-screen').style.display = 'none';
                 renderEngine();
             } else {
                 document.getElementById('setup-screen').style.display = 'flex';
@@ -237,71 +186,90 @@
 
             activeData = {
                 name: txt,
+                overallLevel: 1,
+                overallXp: 0,
                 style: { skin: '#FFDBAC', hair: 'transparent', hairH: '0px', hairR: '0', beard: 'transparent', beardH: '0px', cloth: '#2A3B50' },
                 pillars: {
-                    money: { level: 1, quests: [...starterPresets.money.map(q => ({...q}))] },
-                    health: { level: 1, quests: [...starterPresets.health.map(q => ({...q}))] },
-                    religion: { level: 1, quests: [...starterPresets.religion.map(q => ({...q}))] },
-                    personality: { level: 1, quests: [...starterPresets.personality.map(q => ({...q}))] }
+                    money: { level: 1, xp: 0, quests: JSON.parse(JSON.stringify(starterPresets.money)) },
+                    health: { level: 1, xp: 0, quests: JSON.parse(JSON.stringify(starterPresets.health)) },
+                    religion: { level: 1, xp: 0, quests: JSON.parse(JSON.stringify(starterPresets.religion)) },
+                    personality: { level: 1, xp: 0, quests: JSON.parse(JSON.stringify(starterPresets.personality)) }
                 }
             };
             save();
             document.getElementById('setup-screen').style.display = 'none';
-            document.getElementById('save-screen').style.display = 'none';
             renderEngine();
         }
 
-        function save() {
-            if(currentActiveSlot) localStorage.setItem(`lq_v4_slot_${currentActiveSlot}`, JSON.stringify(activeData));
-        }
-
-        function exitToMenu() {
-            save(); activeData = null; currentActiveSlot = null;
-            refreshSlots();
-            document.getElementById('save-screen').style.display = 'flex';
-        }
-
+        function save() { localStorage.setItem('lq_single_save_profile', JSON.stringify(activeData)); }
         function toggleQuestCreator(show) { document.getElementById('quest-creator').style.display = show ? 'flex' : 'none'; }
 
         function addCustomQuest() {
             const pillar = document.getElementById('q-pillar').value;
             const txt = document.getElementById('q-text').value.trim();
+            const xpVal = parseInt(document.getElementById('q-xp').value) || 25;
             if(!txt) return;
 
-            activeData.pillars[pillar].quests.push({ text: txt, done: false });
+            activeData.pillars[pillar].quests.push({ text: txt, xp: xpVal, done: false });
             save(); toggleQuestCreator(false);
             document.getElementById('q-text').value = "";
             renderEngine();
         }
 
         function removeQuest(pillar, index) {
+            const targetQuest = activeData.pillars[pillar].quests[index];
+            if(targetQuest.done) { 
+                activeData.pillars[pillar].xp = Math.max(0, activeData.pillars[pillar].xp - targetQuest.xp);
+                activeData.overallXp = Math.max(0, activeData.overallXp - Math.round(targetQuest.xp * 0.4));
+            }
             activeData.pillars[pillar].quests.splice(index, 1);
             save(); renderEngine();
         }
 
         function toggleQuestCheck(pillar, index) {
-            activeData.pillars[pillar].quests[index].done = !activeData.pillars[pillar].quests[index].done;
-            save(); renderEngine();
-        }
-
-        function processLevelUp(pillar) {
             let p = activeData.pillars[pillar];
-            if(p.quests.length === 0 || !p.quests.every(q => q.done)) return;
+            let q = p.quests[index];
+            q.done = !q.done;
 
-            p.level += 1;
-            p.quests = [...starterPresets[pillar].map(q => ({...q}))];
-            alert(`⚡ LEVEL UP! Ascended your ${pillar.toUpperCase()} variable tracking to Level ${p.level}!`);
+            const overallRatio = Math.round(q.xp * 0.4);
+
+            if(q.done) { 
+                p.xp += q.xp; 
+                activeData.overallXp += overallRatio;
+            } else { 
+                p.xp = Math.max(0, p.xp - q.xp); 
+                activeData.overallXp = Math.max(0, activeData.overallXp - overallRatio);
+            }
+
+            let targetXpMax = p.level * 100;
+            if(p.xp >= targetXpMax) {
+                p.level += 1;
+                p.xp = 0;
+                p.quests.forEach(item => item.done = false);
+                activeData.overallXp += (p.level * 20);
+                alert(`🎉 CATEGORY ELEVATION! Your ${pillar.toUpperCase()} variable hit Level ${p.level}!`);
+            }
+
+            let globalMaxRequirement = activeData.overallLevel * 150;
+            if(activeData.overallXp >= globalMaxRequirement) {
+                activeData.overallXp -= globalMaxRequirement;
+                activeData.overallLevel += 1;
+                alert(`👑 GLOBAL LEVEL UP! You reached Overall Level ${activeData.overallLevel}!`);
+            }
+
             save(); renderEngine();
         }
 
         function renderEngine() {
-            let sum = activeData.pillars.money.level + activeData.pillars.health.level + activeData.pillars.religion.level + activeData.pillars.personality.level;
             document.getElementById('v-name').innerText = activeData.name;
-            document.getElementById('v-total-level').innerText = `COMBINED POWER LVL: ${sum}`;
-
-            // Render Vector Layers Canvas configurations
-            document.getElementById('render-skin').style.backgroundColor = activeData.style.skin;
             
+            const currentGlobalMax = activeData.overallLevel * 150;
+            const globalPct = Math.min(100, (activeData.overallXp / currentGlobalMax) * 100);
+            document.getElementById('v-overall-level').innerText = `OVERALL LVL: ${activeData.overallLevel}`;
+            document.getElementById('v-overall-xp-txt').innerText = `${activeData.overallXp}/${currentGlobalMax} XP`;
+            document.getElementById('overall-xp-fill').style.width = `${globalPct}%`;
+
+            document.getElementById('render-skin').style.backgroundColor = activeData.style.skin;
             const hairNode = document.getElementById('render-hair');
             if(activeData.style.hair === 'transparent') { hairNode.style.display = 'none'; } 
             else { hairNode.style.display = 'block'; hairNode.style.backgroundColor = activeData.style.hair; hairNode.style.height = activeData.style.hairH; hairNode.style.borderRadius = activeData.style.hairR; }
@@ -309,10 +277,8 @@
             const beardNode = document.getElementById('render-beard');
             if(activeData.style.beard === 'transparent') { beardNode.style.display = 'none'; }
             else { beardNode.style.display = 'block'; beardNode.style.backgroundColor = activeData.style.beard; beardNode.style.height = activeData.style.beardH; }
-
             document.getElementById('render-cloth').style.backgroundColor = activeData.style.cloth;
 
-            // Generate Quest Tracker Matrix
             const grid = document.getElementById('main-quest-grid');
             grid.innerHTML = '';
 
@@ -325,7 +291,8 @@
 
             architecture.forEach(p => {
                 const data = activeData.pillars[p.id];
-                const ready = data.quests.length > 0 && data.quests.every(q => q.done);
+                const targetMax = data.level * 100;
+                const progressPct = Math.min(100, (data.xp / targetMax) * 100);
 
                 let logHTML = '';
                 data.quests.forEach((q, i) => {
@@ -336,6 +303,7 @@
                                     ${q.done ? '✓' : ''}
                                 </div>
                                 <span>${q.text}</span>
+                                <span class="xp-badge">+${q.xp} XP</span>
                             </div>
                             <button class="del-btn" onclick="removeQuest('${p.id}', ${i})">×</button>
                         </div>
@@ -343,57 +311,41 @@
                 });
 
                 if(data.quests.length === 0) {
-                    logHTML = `<div style="font-size:12px; color:var(--text-dark); text-align:center; padding:8px;">Quest stack clear. Inject targets above.</div>`;
+                    logHTML = `<div style="font-size:12px; color:var(--text-dark); text-align:center; padding:8px;">Quest list empty. Forge a mission above.</div>`;
                 }
 
                 grid.insertAdjacentHTML('beforeend', `
                     <div class="pillar-card" style="border-left-color:${p.col}">
                         <div class="pillar-header">
                             <span class="pillar-title">${p.label}</span>
-                            <span class="lvl-tag" style="color:${p.col}">LVL ${data.level}</span>
+                            <span class="lvl-tag" style="color:${p.col}">LVL ${data.level} (${data.xp}/${targetMax} XP)</span>
+                        </div>
+                        <div class="xp-bar-container">
+                            <div class="xp-bar-fill" style="background:${p.col}; width:${progressPct}%"></div>
                         </div>
                         <div>${logHTML}</div>
-                        <button class="btn btn-sm" style="display:${ready ? 'block' : 'none'}; background:${p.col}; color:#0A0E17;" onclick="processLevelUp('${p.id}')">
-                            CONCLUDE LEVEL UP ⚡
-                        </button>
                     </div>
                 `);
             });
         }
 
-        /* Vector Studio Customization Module UI Generation */
         function openCustomizer() {
-            const target = document.getElementById('customizer-container');
-            target.innerHTML = '';
-
-            // Skin Selector Build Loop
+            const target = document.getElementById('customizer-container'); target.innerHTML = '';
             let skinHTML = `<div class="config-block"><label>Skin Pigmentation</label><div class="scroller-row">`;
-            assetOptions.skin.forEach(opt => {
-                skinHTML += `<div class="swatch-box ${activeData.style.skin === opt.val ? 'selected' : ''}" onclick="applyStyle('skin','${opt.val}')">${opt.label}</div>`;
-            });
+            assetOptions.skin.forEach(opt => { skinHTML += `<div class="swatch-box ${activeData.style.skin === opt.val ? 'selected' : ''}" onclick="applyStyle('skin','${opt.val}')">${opt.label}</div>`; });
             target.insertAdjacentHTML('beforeend', skinHTML + `</div></div>`);
 
-            // Hair Selector Build Loop
             let hairHTML = `<div class="config-block"><label>Hair Architecture</label><div class="scroller-row">`;
-            assetOptions.hair.forEach(opt => {
-                hairHTML += `<div class="swatch-box ${activeData.style.hair === opt.val ? 'selected' : ''}" onclick="applyStyle('hair','${opt.val}','${opt.h}','${opt.r}')">${opt.label}</div>`;
-            });
+            assetOptions.hair.forEach(opt => { hairHTML += `<div class="swatch-box ${activeData.style.hair === opt.val ? 'selected' : ''}" onclick="applyStyle('hair','${opt.val}','${opt.h}','${opt.r}')">${opt.label}</div>`; });
             target.insertAdjacentHTML('beforeend', hairHTML + `</div></div>`);
 
-            // Beard Selector Build Loop
             let beardHTML = `<div class="config-block"><label>Facial Beard Shadow</label><div class="scroller-row">`;
-            assetOptions.facialHair.forEach(opt => {
-                beardHTML += `<div class="swatch-box ${activeData.style.beard === opt.val ? 'selected' : ''}" onclick="applyStyle('beard','${opt.val}','${opt.h}')">${opt.label}</div>`;
-            });
+            assetOptions.facialHair.forEach(opt => { beardHTML += `<div class="swatch-box ${activeData.style.beard === opt.val ? 'selected' : ''}" onclick="applyStyle('beard','${opt.val}','${opt.h}')">${opt.label}</div>`; });
             target.insertAdjacentHTML('beforeend', beardHTML + `</div></div>`);
 
-            // Clothing Color Selector Build Loop
             let clothHTML = `<div class="config-block"><label>Wardrobe Uniform Apparel</label><div class="scroller-row">`;
-            assetOptions.clothing.forEach(opt => {
-                clothHTML += `<div class="swatch-box ${activeData.style.cloth === opt.val ? 'selected' : ''}" onclick="applyStyle('cloth','${opt.val}')">${opt.label}</div>`;
-            });
+            assetOptions.clothing.forEach(opt => { clothHTML += `<div class="swatch-box ${activeData.style.cloth === opt.val ? 'selected' : ''}" onclick="applyStyle('cloth','${opt.val}')">${opt.label}</div>`; });
             target.insertAdjacentHTML('beforeend', clothHTML + `</div></div>`);
-
             document.getElementById('customizer-drawer').style.display = 'flex';
         }
 
@@ -404,13 +356,9 @@
             if(type === 'beard') { activeData.style.beard = val; activeData.style.beardH = extra1; }
             save(); openCustomizer();
         }
+        function closeCustomizer() { document.getElementById('customizer-drawer').style.display = 'none'; renderEngine(); }
 
-        function closeCustomizer() {
-            document.getElementById('customizer-drawer').style.display = 'none';
-            renderEngine();
-        }
-
-        refreshSlots();
+        initSingleSave();
     </script>
 </body>
 </html>
